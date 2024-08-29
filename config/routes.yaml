@@ -3,3 +3,92 @@ controllers:
         path: ../src/Controller/
         namespace: App\Controller
     type: attribute
+
+index:
+    path: /
+    controller: 'App\Controller\DefaultController::index'
+
+
+
+login:
+    path: /login
+    controller: App\Controller\AuthController::login
+    methods: POST
+
+
+api_get_animals:
+    path: /api/animals
+    controller: App\Controller\AnimalController::getAnimals
+    methods: [GET]
+
+api_add_animal:
+    path: /api/animals
+    controller: App\Controller\AnimalController::addAnimal
+    methods: [POST]
+
+api_delete_animal:
+    path: /api/animals/{name}
+    controller: App\Controller\AnimalController::deleteAnimal
+    methods: [DELETE]
+
+
+# Route pour soumettre un nouvel avis
+review_create:
+    path: /api/review
+    controller: App\Controller\AvisController::submitReview
+    methods: [POST]
+
+# Route pour obtenir un avis par son ID
+review_get:
+    path: /api/review/{id}
+    controller: App\Controller\AvisController::getReview
+    methods: [GET]
+
+# Route pour mettre à jour un avis existant
+review_update:
+    path: /api/review/{id}
+    controller: App\Controller\AvisController::updateReview
+    methods: [PUT]
+
+# Route pour supprimer un avis par son ID
+review_delete:
+    path: /api/review/{id}
+    controller: App\Controller\AvisController::deleteReview
+    methods: [DELETE]
+
+# config/routes.yaml
+
+# Route de contact
+contact:
+    path: /api/contact
+    controller: App\Controller\ContactController::contact
+    methods: [POST]
+
+signup:
+    path: /signup
+    controller: App\Controller\SignupController::signup
+    methods: ['GET', 'POST']
+vet_form_get_all:
+    path: /api/vet-form
+    controller: App\Controller\VetFormController::getAllVetForms
+    methods: ['GET']
+
+vet_form_get:
+    path: /api/vet-form/{id}
+    controller: App\Controller\VetFormController::getVetForm
+    methods: ['GET']
+
+vet_form_create:
+    path: /api/vet-form
+    controller: App\Controller\VetFormController::createVetForm
+    methods: ['POST']
+
+vet_form_update:
+    path: /api/vet-form/{id}
+    controller: App\Controller\VetFormController::updateVetForm
+    methods: ['PUT']
+
+vet_form_delete:
+    path: /api/vet-form/{id}
+    controller: App\Controller\VetFormController::deleteVetForm
+    methods: ['DELETE']
