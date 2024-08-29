@@ -78,3 +78,5 @@ MONGODB_URL="mongodb://localhost:27017"
 
 Envoyé les données du code SQL vers la BDD taper la commande suivante dans le terminal: 
 mysql -u nom_utilisateur -p nom_de_la_base_de_données < setup.sql
+
+faire la commande suivante dans le terminal afin d'installer le projet en local  :
