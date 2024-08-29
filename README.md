@@ -74,3 +74,7 @@ composer require alcaeus/mongo-php-adapter
 
 Configurez MongoDB dans votre fichier .env.local :
 MONGODB_URL="mongodb://localhost:27017"
+
+
+Envoyé les données du code SQL vers la BDD taper la commande suivante dans le terminal: 
+mysql -u nom_utilisateur -p nom_de_la_base_de_données < setup.sql
