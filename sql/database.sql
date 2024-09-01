@@ -87,8 +87,15 @@ INSERT INTO roles (id, name) VALUES
 
 -- Insertion d'un utilisateur exemple (admin)
 INSERT INTO users (id, email, password, role_id) 
-VALUES (UUID(), 'admin@example.com', 'password_hash', (SELECT id FROM roles WHERE name = 'admin'));
-
+-- VALUES (UUID(), 'admin@example.com', 'password_hash', (SELECT id FROM roles WHERE name = 'admin'));
+-- Insertion d'un utilisateur exemple (admin)
+INSERT INTO users (id, email, password, role_id) 
+VALUES (
+    UUID(), 
+    'admin@zoobackend.com', 
+    SHA2('VotreMotDePasseSécurisé', 256), 
+    (SELECT id FROM roles WHERE name = 'admin')
+);
 -- Insertion d'un habitat exemple
 INSERT INTO habitats (id, name, description) 
 VALUES (UUID(), 'Savane', 'Un large espace pour les animaux de la savane.');

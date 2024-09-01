@@ -1,8 +1,8 @@
-<?
+<?php
 
 namespace App\Entity;
 
-class Service
+class NosOffres
 {
     private string $id;
     private string $name;
