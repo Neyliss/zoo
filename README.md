@@ -51,6 +51,9 @@ composer require symfony/serializer
 composer require symfony/validator
 composer require api  
 composer require api-platform/core  
+composer require symfony/serializer-pacK 
+composer require nelmio/api-doc-bundle  
+composer require twig asset         
 
 Vérifier que tous les composant sont installés et que votre projet symfony peut être lancé : 
 symfony check:requirements
@@ -75,9 +78,14 @@ composer require alcaeus/mongo-php-adapter
 Configurez MongoDB dans votre fichier .env.local :
 MONGODB_URL="mongodb://localhost:27017"
 
-
+# Envoyé les données du fichier database.sql vers la BDD :
 Envoyé les données du code SQL vers la BDD taper la commande suivante dans le terminal: 
 mysql -u nom_utilisateur -p nom_de_la_base_de_données < setup.sql
 
+# Installer le projet en local : 
 faire la commande suivante dans le terminal afin d'installer le projet en local  :
 git clone https://github.com/Neyliss/zoo.git
+
+Lancer le projet en local :
+symfony server:start   
+

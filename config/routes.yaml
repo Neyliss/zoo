@@ -92,3 +92,99 @@ vet_form_delete:
     path: /api/vet-form/{id}
     controller: App\Controller\VetFormController::deleteVetForm
     methods: ['DELETE']
+
+# Route pour se connecter
+user_login:
+    path: /api/login
+    controller: App\Controller\UserController::login
+    methods: [POST]
+
+# Route pour créer un nouvel utilisateur
+user_create:
+    path: /api/users
+    controller: App\Controller\UserController::createUser
+    methods: [POST]
+
+# Route pour obtenir un utilisateur par son ID
+user_get:
+    path: /api/users/{id}
+    controller: App\Controller\UserController::getUser
+    methods: [GET]
+
+# Route pour mettre à jour un utilisateur existant
+user_update:
+    path: /api/users/{id}
+    controller: App\Controller\UserController::updateUser
+    methods: [PUT]
+
+# Route pour supprimer un utilisateur par son ID
+user_delete:
+    path: /api/users/{id}
+    controller: App\Controller\UserController::deleteUser
+    methods: [DELETE]
+
+# Route pour obtenir la liste des offres
+nos_offres_list:
+    path: /api/nos-offres
+    controller: App\Controller\NosOffresController::index
+    methods: [GET]
+
+# Route pour créer une nouvelle offre
+nos_offres_create:
+    path: /api/nos-offres
+    controller: App\Controller\NosOffresController::create
+    methods: [POST]
+
+# Route pour mettre à jour une offre existante
+nos_offres_edit:
+    path: /api/nos-offres/{id}
+    controller: App\Controller\NosOffresController::edit
+    methods: [PUT]
+
+# Route pour supprimer une offre par son ID
+nos_offres_delete:
+    path: /api/nos-offres/{id}
+    controller: App\Controller\NosOffresController::delete
+    methods: [DELETE]
+
+# Route pour sauvegarder une photo (ajouter ou mettre à jour une photo)
+api_save_photo:
+    path: /api/photos
+    controller: App\Controller\PhotoController::savePhoto
+    methods: [POST, PUT]
+
+# Route pour supprimer une photo
+api_delete_photo:
+    path: /api/photos
+    controller: App\Controller\PhotoController::deletePhoto
+    methods: [DELETE]
+
+# Route pour obtenir tous les habitats
+api_get_habitats:
+    path: /api/habitats
+    controller: App\Controller\HabitatController::list
+    methods: [GET]
+
+# Route pour obtenir un habitat spécifique par ID
+api_get_habitat:
+    path: /api/habitats/{id}
+    controller: App\Controller\HabitatController::show
+    methods: [GET]
+
+# Route pour créer un nouvel habitat
+api_create_habitat:
+    path: /api/habitats
+    controller: App\Controller\HabitatController::create
+    methods: [POST]
+
+# Route pour mettre à jour un habitat existant par ID
+api_update_habitat:
+    path: /api/habitats/{id}
+    controller: App\Controller\HabitatController::update
+    methods: [PUT]
+
+# Route pour supprimer un habitat par ID
+api_delete_habitat:
+    path: /api/habitats/{id}
+    controller: App\Controller\HabitatController::delete
+    methods: [DELETE]
