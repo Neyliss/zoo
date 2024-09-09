@@ -21,11 +21,12 @@ class HabitatRepository
 
         $habitats = [];
         foreach ($result as $row) {
+            $imagePath = isset($row['image_path']) ? $row['image_path'] : 'default_image.jpg'; // Valeur par défaut
             $habitat = new Habitat(
                 $row['id'],
                 $row['name'],
                 $row['description'],
-                $row['image_path']
+                $imagePath
             );
             $habitats[] = $habitat;
         }
@@ -40,11 +41,12 @@ class HabitatRepository
         $row = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($row) {
+            $imagePath = isset($row['image_path']) ? $row['image_path'] : 'default_image.jpg'; // Valeur par défaut
             return new Habitat(
                 $row['id'],
                 $row['name'],
                 $row['description'],
-                $row['image_path']
+                $imagePath
             );
         }
 
@@ -58,7 +60,7 @@ class HabitatRepository
         $stmt->execute([
             'name' => $habitat->getName(),
             'description' => $habitat->getDescription(),
-            'image_path' => $habitat->getImagePath(),
+            'image_path' => $habitat->getImagePath() ?? 'default_image.jpg', // Valeur par défaut si non définie
         ]);
     }
 
@@ -69,7 +71,7 @@ class HabitatRepository
         $stmt->execute([
             'name' => $habitat->getName(),
             'description' => $habitat->getDescription(),
-            'image_path' => $habitat->getImagePath(),
+            'image_path' => $habitat->getImagePath() ?? 'default_image.jpg', // Valeur par défaut si non définie
             'id' => $id,
         ]);
     }

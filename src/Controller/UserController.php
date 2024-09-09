@@ -13,6 +13,8 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Uid\Uuid;
+use InvalidArgumentException;
 
 class UserController
 {
@@ -80,13 +82,12 @@ class UserController
         }
 
         $user = new User(
-            uniqid(),
+            Uuid::v4(), // Génère un UUID valide
             $data['email'],
             $this->passwordHasher->hashPassword(new User('', '', '', ''), $data['password']),
             $data['role_id'],
             null  // Ajoutez 'null' ou une valeur de token si disponible
         );
-        
 
         $this->userRepository->save($user);
 
@@ -98,6 +99,11 @@ class UserController
      */
     public function getUser(string $id): JsonResponse
     {
+        // Validation de l'UUID
+        if (!Uuid::isValid($id)) {
+            return new JsonResponse(['error' => 'Invalid UUID'], Response::HTTP_BAD_REQUEST);
+        }
+
         $user = $this->userRepository->findById($id);
 
         if (!$user) {
@@ -116,6 +122,11 @@ class UserController
      */
     public function updateUser(string $id, Request $request): JsonResponse
     {
+        // Validation de l'UUID
+        if (!Uuid::isValid($id)) {
+            return new JsonResponse(['error' => 'Invalid UUID'], Response::HTTP_BAD_REQUEST);
+        }
+
         $data = json_decode($request->getContent(), true);
 
         $user = $this->userRepository->findById($id);
@@ -140,6 +151,11 @@ class UserController
      */
     public function deleteUser(string $id): JsonResponse
     {
+        // Validation de l'UUID
+        if (!Uuid::isValid($id)) {
+            return new JsonResponse(['error' => 'Invalid UUID'], Response::HTTP_BAD_REQUEST);
+        }
+
         $user = $this->userRepository->findById($id);
 
         if (!$user) {
