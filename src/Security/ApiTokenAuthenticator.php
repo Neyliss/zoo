@@ -2,42 +2,49 @@
 
 namespace App\Security;
 
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Http\Authenticator\AbstractAuthenticator;
 use Symfony\Component\Security\Http\Authenticator\Passport\SelfValidatingPassport;
 use Symfony\Component\Security\Http\Authenticator\Passport\Badge\UserBadge;
 use Symfony\Component\Security\Http\Authenticator\Passport\Passport;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\User\UserProviderInterface;
+use Symfony\Component\Security\Core\Exception\UserNotFoundException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 class ApiTokenAuthenticator extends AbstractAuthenticator
 {
-    private $userProvider;
+    private UserRepository $repository;
+    private UserProviderInterface $userProvider;
 
-    public function __construct(UserProviderInterface $userProvider)
+    public function __construct(UserRepository $repository, UserProviderInterface $userProvider)
     {
+        $this->repository = $repository;
         $this->userProvider = $userProvider;
     }
 
     public function supports(Request $request): ?bool
     {
-        return $request->headers->has('Authorization');
+        return $request->headers->has('X-AUTH-TOKEN');
     }
 
-    public function authenticate(Request $request): Passport
+    public function authenticate(Request $request): Passport // Assurez-vous que cela correspond à la signature de la classe parente
     {
-        $apiToken = $request->headers->get('Authorization');
+        $apiToken = $request->headers->get('X-AUTH-TOKEN');
 
         if (null === $apiToken) {
             throw new AuthenticationException('No API token provided');
         }
 
-        return new SelfValidatingPassport(new UserBadge($apiToken, function($apiToken) {
-            return $this->userProvider->loadUserByIdentifier($apiToken);
-        }));
+        $user = $this->repository->findOneBy(['apitoken' => $apiToken]);
+        if (null === $user) {
+            throw new UserNotFoundException();
+        }
+
+        return new SelfValidatingPassport(new UserBadge($user->getUserIdentifier()));
     }
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, string $firewallName): ?Response

@@ -16,6 +16,13 @@ login:
     methods: POST
 
 
+Inscription:
+    path: /registration
+    controller: App\Controller\SecurityController::registration
+    methods: [POST]
+
+
+
 api_get_animals:
     path: /api/animals
     controller: App\Controller\AnimalController::getAnimals
@@ -68,6 +75,8 @@ signup:
     path: /signup
     controller: App\Controller\SignupController::signup
     methods: ['GET', 'POST']
+
+
 vet_form_get_all:
     path: /api/vet-form
     controller: App\Controller\VetFormController::getAllVetForms

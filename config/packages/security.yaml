@@ -25,6 +25,7 @@ security:
             # Configuration de la déconnexion
             logout:
                 path: /logout
+            custom_authenticator: App\Security\ApiTokenAuthenticator
 
         # Ajout du firewall 'api' pour l'authentification par token
         api:
