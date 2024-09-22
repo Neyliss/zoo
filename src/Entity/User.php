@@ -19,7 +19,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->email = $email;
         $this->password = $password;
         $this->roleId = $roleId;
-        $this->token = $token;
+        $this->token = $token = bin2hex(random_bytes(20));
     }
 
     public function getId(): string
