@@ -1,10 +1,9 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
-
 -- Table des rôles utilisateurs
 CREATE TABLE roles (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(255) NOT NULL
+    name VARCHAR(255) NOT NULL UNIQUE
 );
 
 -- Table des utilisateurs (admin, vétérinaire, employé)
@@ -13,34 +12,39 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role_id UUID,
-    token VARCHAR(255) DEFAULT NULL, -- Utilisation de JWT pour la gestion des tokens
+    apiToken VARCHAR(255) DEFAULT NULL, -- Utilisation de JWT pour la gestion des tokens
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 );
 
--- Table des habitats
-CREATE TABLE habitats (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    image VARCHAR(255) DEFAULT NULL -- Ajout de l'image pour chaque habitat
+
+ALTER TABLE users ADD CONSTRAINT one_admin CHECK (
+  (SELECT COUNT(*) FROM users WHERE role_id = 1) <= 1
 );
 
--- Table des animaux
-CREATE TABLE animals (
+
+-- Table des habitats (un habitat peut avoir plusieurs animaux)
+CREATE TABLE habitat (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    image_path VARCHAR(255)
+);
+
+-- Table des animaux (plusieurs animaux peuvent appartenir à un seul habitat)
+CREATE TABLE animal (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     race VARCHAR(255) NOT NULL,
-    habitat_id UUID,
+    habitat_id UUID, -- Clé étrangère vers la table habitat
     image VARCHAR(255) DEFAULT NULL, -- Ajout de l'image pour chaque animal
-    FOREIGN KEY (habitat_id) REFERENCES habitats(id) ON DELETE CASCADE
+    FOREIGN KEY (habitat_id) REFERENCES habitat(id) ON DELETE CASCADE -- Relation entre animal et habitat
 );
 
 -- Table des formulaires vétérinaires
 CREATE TABLE vet_forms (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    animal_id UUID,
     etat_animal VARCHAR(255) NOT NULL,
     nourriture_proposee VARCHAR(255) NOT NULL,
     grammage_nourriture INT NOT NULL,
@@ -48,23 +52,47 @@ CREATE TABLE vet_forms (
     detail_etat_animal TEXT,
     created_by UUID, -- Vétérinaire qui a créé le formulaire
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (animal_id) REFERENCES animals(id) ON DELETE CASCADE,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Table des avis
+-- Table pivot pour la relation plusieurs-à-plusieurs entre animal et vet_forms
+CREATE TABLE animal_vet_form (
+    animal_id UUID,
+    vet_form_id UUID,
+    PRIMARY KEY (animal_id, vet_form_id),
+    FOREIGN KEY (animal_id) REFERENCES animal(id) ON DELETE CASCADE,
+    FOREIGN KEY (vet_form_id) REFERENCES vet_forms(id) ON DELETE CASCADE
+);
+
+-- Relation entre un admin et les vet_forms qu'il peut voir dans le Dashboard
+CREATE TABLE admin_vet_form (
+    admin_id UUID,
+    vet_form_id UUID,
+    PRIMARY KEY (admin_id, vet_form_id),
+    FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (vet_form_id) REFERENCES vet_forms(id) ON DELETE CASCADE
+);
+
+-- Table des avis (modification existante)
 CREATE TABLE avis (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     pseudo VARCHAR(255) NOT NULL,
     avis TEXT NOT NULL,
     rating INT CHECK (rating BETWEEN 1 AND 5),
-    validated_by UUID, -- Employé qui valide/invalide les avis
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (validated_by) REFERENCES users(id) ON DELETE SET NULL
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Table pivot pour la relation plusieurs-à-plusieurs entre employés/admins et avis
+CREATE TABLE employee_avis (
+    user_id UUID,   -- Employé ou admin
+    avis_id UUID,   -- Avis à valider
+    PRIMARY KEY (user_id, avis_id),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (avis_id) REFERENCES avis(id) ON DELETE CASCADE
 );
 
 -- Table des contacts
-CREATE TABLE contacts (
+CREATE TABLE contact (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     titre VARCHAR(255) NOT NULL,
     email VARCHAR(255) NOT NULL,
@@ -73,7 +101,7 @@ CREATE TABLE contacts (
 );
 
 -- Table des services
-CREATE TABLE services (
+CREATE TABLE nosOffres (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,
@@ -83,40 +111,9 @@ CREATE TABLE services (
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
--- Insertion des rôles prédéfinis (admin, vétérinaire, employé)
-INSERT INTO roles (id, name) VALUES 
-(uuid_generate_v4(), 'admin'), 
-(uuid_generate_v4(), 'veterinaire'), 
-(uuid_generate_v4(), 'employe');
+-- Insertion des rôles (admin, vétérinaire, employé)
+INSERT INTO roles (name) VALUES ('admin'), ('veterinaire'), ('employe');
 
--- Insertion d'un utilisateur exemple (admin)
-INSERT INTO users (id, email, password, role_id) 
-VALUES (
-    uuid_generate_v4(), 
-    'admin@zoobackend.com', 
-    crypt('VotreMotDePasseSécurisé', gen_salt('bf')), 
-    (SELECT id FROM roles WHERE name = 'admin')
-);
-
--- Insertion d'un habitat exemple
-INSERT INTO habitats (id, name, description, image) 
-VALUES (uuid_generate_v4(), 'Savane', 'Un large espace pour les animaux de la savane.', '/Images/savane.jpeg');
-
--- Insertion d'un animal exemple dans un habitat
-INSERT INTO animals (id, name, race, habitat_id, image) 
-VALUES (uuid_generate_v4(), 'Leo', 'Lion', (SELECT id FROM habitats WHERE name = 'Savane'), '/Images/lion.jpeg');
-
--- Insertion d'un formulaire vétérinaire exemple pour un animal
-INSERT INTO vet_forms (id, animal_id, etat_animal, nourriture_proposee, grammage_nourriture, date_passage, created_by) 
-VALUES (uuid_generate_v4(), 
-        (SELECT id FROM animals WHERE name = 'Leo'), 
-        'Bonne santé', 
-        'Viande', 
-        5000, 
-        '2024-08-26', 
-        (SELECT id FROM users WHERE email = 'veterinaire@example.com'));
-
--- Insertion d'un service exemple
-INSERT INTO services (id, name, description, image, created_by) 
-VALUES (uuid_generate_v4(), 'Nettoyage des enclos', 'Service de nettoyage des habitats pour assurer un environnement sain.', '/Images/nettoyage.jpeg', 
-        (SELECT id FROM users WHERE email = 'admin@zoobackend.com'));
+-- Insertion de l'utilisateur administrateur unique
+INSERT INTO users (email, password, role_id)
+VALUES ('admin@mail.com', 'Adminlog456789', (SELECT id FROM roles WHERE name = 'admin'));

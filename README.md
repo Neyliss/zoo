@@ -57,9 +57,20 @@ composer require twig asset
 
 Vérifier que tous les composant sont installés et que votre projet symfony peut être lancé : 
 symfony check:requirements
+# Installer PostgreSQL sur MacOs  :
 
-Créer un fichier .env.local et configuré l'accés à la base de données MySQL :
-DATABASE_URL="mysql://db_user:db_password@127.0.0.1:3306/db_name"
+Je travaillais initialement sur MySQL mais des roblème de compatibilité sont survenu je suis obligé de modifier tout mon code back end en utilisant POSTGRESQL :
+
+- installation depuis le Terminal  avec la commande :
+brew install postgresql
+- Démarrez le service à l'aide de la commande :
+  brew services start postgresql
+- Vérifier que le service fonctionne correctement :
+  brew services list 
+
+
+Créer un fichier .env.local et configuré l'accés à la base de données PostgreSQL :
+DATABASE_URL="postgresql://app:!ChangeMe!@127.0.0.1:5433/app?serverVersion=16&charset=utf8"
 
 # Installer Mongodb sur MacOs  :
 
@@ -89,3 +100,4 @@ git clone https://github.com/Neyliss/zoo.git
 Lancer le projet en local :
 symfony server:start   
 
+# ATTENTION MON PROJET EST EN COURS DE MODIFICATION SUITE A DES PROBLEMES DE COMPATIBILITE SURVENU APRES UNE MAJ IOS RETRAIT DU SITE DEPLOYER TEMPORAIREMENT 

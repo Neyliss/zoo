@@ -2,85 +2,104 @@
 
 namespace App\Repository;
 
+use App\Entity\Animal;
 use PDO;
-use MongoDB\Client as MongoDBClient;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 class AnimalRepository
 {
-    private $connection;
-    private $mongoClient;
-    private $mongoDb;
+    private PDO $pdo;
 
-    public function __construct(ParameterBagInterface $params)
+    public function __construct(PDO $pdo)
     {
-        // Connexion MySQL
-        $dsn = sprintf(
-            'mysql:host=%s;dbname=%s;charset=utf8',
-            $params->get('database_host'),
-            $params->get('database_name')
-        );
-
-        $this->connection = new PDO($dsn, $params->get('database_user'), $params->get('database_password'));
-        $this->connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-        // Connexion MongoDB
-        $this->mongoClient = new MongoDBClient($params->get('mongodb_uri'));
-        $this->mongoDb = $this->mongoClient->selectDatabase($params->get('mongodb_db'));
+        $this->pdo = $pdo;
     }
 
     public function findAll(): array
     {
-        $stmt = $this->connection->prepare('SELECT * FROM animals');
-        $stmt->execute();
+        $stmt = $this->pdo->query('SELECT * FROM animal');
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $animals = [];
+        foreach ($results as $result) {
+            $animals[] = new Animal(
+                $result['id'], 
+                $result['name'], 
+                $result['race'], 
+                $result['habitat_id'], 
+                $result['image_path'] // Ajout de la gestion de l'image
+            );
+        }
+
+        return $animals;
     }
 
-    public function findById(string $id): ?array
+    public function findById(string $id): ?Animal
     {
-        $stmt = $this->connection->prepare('SELECT * FROM animals WHERE id = :id');
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+        $stmt = $this->pdo->prepare('SELECT * FROM animal WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+        if ($result) {
+            return new Animal(
+                $result['id'], 
+                $result['name'], 
+                $result['race'], 
+                $result['habitat_id'],
+                $result['image_path'] // Ajout de la gestion de l'image
+            );
+        }
+
+        return null;
     }
 
-    public function insert(array $animal): void
+    public function findByHabitatId(string $habitatId): array
     {
-        $stmt = $this->connection->prepare('INSERT INTO animals (id, name, race, habitat_id) VALUES (:id, :name, :race, :habitat_id)');
-        $stmt->execute($animal);
+        $stmt = $this->pdo->prepare('SELECT * FROM animal WHERE habitat_id = :habitat_id');
+        $stmt->execute(['habitat_id' => $habitatId]);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $animals = [];
+        foreach ($results as $result) {
+            $animals[] = new Animal(
+                $result['id'], 
+                $result['name'], 
+                $result['race'], 
+                $result['habitat_id'],
+                $result['image_path'] // Ajout de la gestion de l'image
+            );
+        }
+
+        return $animals;
     }
 
-    public function update(string $id, array $animal): void
+    public function save(Animal $animal): void
     {
-        $stmt = $this->connection->prepare('UPDATE animals SET name = :name, race = :race, habitat_id = :habitat_id WHERE id = :id');
-        $animal['id'] = $id;
-        $stmt->execute($animal);
+        if ($animal->getId()) {
+            // Si l'ID est défini, nous mettons à jour l'enregistrement existant
+            $stmt = $this->pdo->prepare('UPDATE animal SET name = :name, race = :race, habitat_id = :habitat_id, image_path = :image_path WHERE id = :id');
+            $stmt->execute([
+                'id' => $animal->getId(),
+                'name' => $animal->getName(),
+                'race' => $animal->getRace(),
+                'habitat_id' => $animal->getHabitatId(),
+                'image_path' => $animal->getImagePath(), // Gestion de l'image
+            ]);
+        } else {
+            // Sinon, nous insérons un nouvel enregistrement
+            $stmt = $this->pdo->prepare('INSERT INTO animal (id, name, race, habitat_id, image_path) VALUES (:id, :name, :race, :habitat_id, :image_path)');
+            $stmt->execute([
+                'id' => $animal->getId(),
+                'name' => $animal->getName(),
+                'race' => $animal->getRace(),
+                'habitat_id' => $animal->getHabitatId(),
+                'image_path' => $animal->getImagePath(), // Gestion de l'image
+            ]);
+        }
     }
 
     public function delete(string $id): void
     {
-        $stmt = $this->connection->prepare('DELETE FROM animals WHERE id = :id');
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
-    }
-
-    public function incrementViewCount(string $animal): void
-    {
-        $collection = $this->mongoDb->selectCollection('animal_views');
-        $collection->updateOne(
-            ['animal' => $animal],
-            ['$inc' => ['views' => 1]],
-            ['upsert' => true]
-        );
-    }
-
-    public function getViewCount(string $animal): int
-    {
-        $collection = $this->mongoDb->selectCollection('animal_views');
-        $document = $collection->findOne(['animal' => $animal]);
-
-        return $document['views'] ?? 0;
+        $stmt = $this->pdo->prepare('DELETE FROM animal WHERE id = :id');
+        $stmt->execute(['id' => $id]);
     }
 }

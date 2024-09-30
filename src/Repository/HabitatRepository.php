@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Repository;
 
 use App\Entity\Habitat;
@@ -6,80 +7,47 @@ use PDO;
 
 class HabitatRepository
 {
-    private $connection;
+    private PDO $pdo;
 
-    public function __construct(PDO $connection)
+    public function __construct(PDO $pdo)
     {
-        $this->connection = $connection;
+        $this->pdo = $pdo;
     }
 
     public function findAll(): array
     {
-        $sql = 'SELECT * FROM habitats';
-        $stmt = $this->connection->query($sql);
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->query('SELECT * FROM habitat');
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $habitats = [];
-        foreach ($result as $row) {
-            $imagePath = isset($row['image_path']) ? $row['image_path'] : 'default_image.jpg'; // Valeur par défaut
-            $habitat = new Habitat(
-                $row['id'],
-                $row['name'],
-                $row['description'],
-                $imagePath
-            );
-            $habitats[] = $habitat;
+        foreach ($results as $result) {
+            $habitats[] = new Habitat($result['id'], $result['name'], $result['description'], $result['image_path']);
         }
+
         return $habitats;
     }
 
-    public function findById(int $id): ?Habitat
+    public function findById(string $id): ?Habitat
     {
-        $sql = 'SELECT * FROM habitats WHERE id = :id';
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->pdo->prepare('SELECT * FROM habitat WHERE id = :id');
         $stmt->execute(['id' => $id]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($row) {
-            $imagePath = isset($row['image_path']) ? $row['image_path'] : 'default_image.jpg'; // Valeur par défaut
-            return new Habitat(
-                $row['id'],
-                $row['name'],
-                $row['description'],
-                $imagePath
-            );
+        if ($result) {
+            return new Habitat($result['id'], $result['name'], $result['description'], $result['image_path']);
         }
 
         return null;
     }
 
-    public function create(Habitat $habitat): void
+    public function save(Habitat $habitat): void
     {
-        $sql = 'INSERT INTO habitats (name, description, image_path) VALUES (:name, :description, :image_path)';
-        $stmt = $this->connection->prepare($sql);
+        $stmt = $this->pdo->prepare('INSERT INTO habitat (id, name, description, image_path) VALUES (:id, :name, :description, :image_path)');
         $stmt->execute([
+            'id' => $habitat->getId(),
             'name' => $habitat->getName(),
             'description' => $habitat->getDescription(),
-            'image_path' => $habitat->getImagePath() ?? 'default_image.jpg', // Valeur par défaut si non définie
+            'image_path' => $habitat->getImagePath(),
         ]);
-    }
-
-    public function update(Habitat $habitat, int $id): void
-    {
-        $sql = 'UPDATE habitats SET name = :name, description = :description, image_path = :image_path WHERE id = :id';
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute([
-            'name' => $habitat->getName(),
-            'description' => $habitat->getDescription(),
-            'image_path' => $habitat->getImagePath() ?? 'default_image.jpg', // Valeur par défaut si non définie
-            'id' => $id,
-        ]);
-    }
-
-    public function delete(int $id): void
-    {
-        $sql = 'DELETE FROM habitats WHERE id = :id';
-        $stmt = $this->connection->prepare($sql);
-        $stmt->execute(['id' => $id]);
     }
 }

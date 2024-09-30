@@ -30,7 +30,7 @@ class VetFormController
     /**
      * @Route("/api/vet-form/{id}", methods={"GET"})
      */
-    public function getVetForm($id): JsonResponse
+    public function getVetForms($id): JsonResponse
     {
         $vetForm = $this->vetFormRepository->findById($id);
 
@@ -44,7 +44,7 @@ class VetFormController
     /**
      * @Route("/api/vet-form", methods={"POST"})
      */
-    public function createVetForm(Request $request): JsonResponse
+    public function createVetForms(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $vetForm = new VetForm(
@@ -65,7 +65,7 @@ class VetFormController
     /**
      * @Route("/api/vet-form/{id}", methods={"PUT"})
      */
-    public function updateVetForm(Request $request, $id): JsonResponse
+    public function updateVetForms(Request $request, $id): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $vetForm = $this->vetFormRepository->findById($id);
@@ -89,7 +89,7 @@ class VetFormController
     /**
      * @Route("/api/vet-form/{id}", methods={"DELETE"})
      */
-    public function deleteVetForm($id): JsonResponse
+    public function deleteVetForms($id): JsonResponse
     {
         $vetForm = $this->vetFormRepository->findById($id);
 

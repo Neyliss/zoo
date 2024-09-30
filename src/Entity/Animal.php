@@ -8,13 +8,15 @@ class Animal
     private $name;
     private $race;
     private $habitatId;
+    private $imagePath; // Ajout de la propriété image
 
-    public function __construct(string $id, string $name, string $race, string $habitatId)
+    public function __construct(string $id, string $name, string $race, string $habitatId, ?string $imagePath = null)
     {
         $this->id = $id;
         $this->name = $name;
         $this->race = $race;
         $this->habitatId = $habitatId;
+        $this->imagePath = $imagePath; // Initialisation de l'image
     }
 
     public function getId(): string
@@ -37,6 +39,11 @@ class Animal
         return $this->habitatId;
     }
 
+    public function getImagePath(): ?string // Ajout du getter pour l'image
+    {
+        return $this->imagePath;
+    }
+
     public function setId(string $id): void
     {
         $this->id = $id;
@@ -55,5 +62,10 @@ class Animal
     public function setHabitatId(string $habitatId): void
     {
         $this->habitatId = $habitatId;
+    }
+
+    public function setImagePath(?string $imagePath): void // Ajout du setter pour l'image
+    {
+        $this->imagePath = $imagePath;
     }
 }

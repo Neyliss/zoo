@@ -10,17 +10,17 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     private ?int $id = null;
     private ?string $email = null;
     private ?string $password = null;
-    private ?string $roles = null;
-    private ?string $apitoken = null;
+    private array $roles = [];
+    private ?string $apiToken = null;
 
-    public function __construct(?int $id, string $email, string $password, array $roles, ?string $token = null)
+    public function __construct(?int $id, string $email, string $password, array $roles = ['ROLE_USER'], ?string $token = null)
     {
         $this->id = $id;
         $this->email = $email;
         $this->password = $password;
         $this->roles = $roles;
         // Si aucun token n'est fourni, on en génère un automatiquement
-        $this->apitoken = $token ?? bin2hex(random_bytes(20));
+        $this->apiToken = $token ?? bin2hex(random_bytes(20));
     }
 
     // Getter pour l'ID
@@ -51,46 +51,42 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->password = $password;
     }
 
-    // Getter et Setter pour le rôle de l'utilisateur
-    public function getRole(): ?string
+    // Getter et Setter pour les rôles
+    public function getRoles(): array
     {
+        // Symfony exige que le rôle 'ROLE_USER' soit toujours présent
+        if (!in_array('ROLE_USER', $this->roles)) {
+            $this->roles[] = 'ROLE_USER';
+        }
         return $this->roles;
     }
 
-    public function setRoleId(string $roles): void
+    public function setRoles(array $roles): void
     {
-        $this->roles= $roles;
+        $this->roles = $roles;
     }
 
     // Getter et Setter pour le token d'API
     public function getApiToken(): ?string
     {
-        return $this->apitoken;
+        return $this->apiToken;
     }
 
     public function setApiToken(?string $token): void
     {
-        $this->apitoken = $token;
+        $this->apiToken = $token;
     }
 
     // Génération d'un nouveau token d'API
     public function regenerateApiToken(): void
     {
-        $this->apitoken = bin2hex(random_bytes(20));
+        $this->apiToken = bin2hex(random_bytes(20));
     }
 
     // Symfony UserInterface methods
     public function getUserIdentifier(): string
     {
         return $this->email;
-    }
-
-    public function getRoles(): array
-    {
-        $roles= $this->roles;
-        $roles[] ='ROLE_USER';
-        return [$this->roles];
-        
     }
 
     public function getSalt(): ?string
@@ -101,8 +97,6 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     public function eraseCredentials(): void
     {
         // Si des données sensibles sont stockées, on les efface
-        $this->password = null;
+        // Ex. : effacer le mot de passe en mémoire après authentification
     }
 }
-
-

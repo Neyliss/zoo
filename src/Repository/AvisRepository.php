@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Repository;
 
 use App\Entity\Avis;
@@ -14,13 +13,13 @@ class AvisRepository
         $this->pdo = $pdo;
     }
 
-    public function findAll(): array
+    public function findAllValidated(): array
     {
-        $stmt = $this->pdo->query('SELECT * FROM avis');
+        $stmt = $this->pdo->query('SELECT * FROM avis WHERE is_validated = 1');
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         return array_map(function ($row) {
-            return new Avis($row['id'], $row['pseudo'], $row['avis'], $row['rating'], $row['validated_by']);
+            return new Avis($row['id'], $row['pseudo'], $row['avis'], $row['rating'], $row['validated_by'], $row['is_validated']);
         }, $results);
     }
 
@@ -34,21 +33,24 @@ class AvisRepository
             return null;
         }
 
-        return new Avis($row['id'], $row['pseudo'], $row['avis'], $row['rating'], $row['validated_by']);
+        return new Avis($row['id'], $row['pseudo'], $row['avis'], $row['rating'], $row['validated_by'], $row['is_validated']);
     }
 
     public function save(Avis $avis): void
     {
         $stmt = $this->pdo->prepare('
-            INSERT INTO avis (pseudo, avis, rating, validated_by) 
-            VALUES (:pseudo, :avis, :rating, :validated_by)
+            INSERT INTO avis (pseudo, avis, rating, validated_by, is_validated) 
+            VALUES (:pseudo, :avis, :rating, :validated_by, :is_validated)
         ');
         $stmt->execute([
             'pseudo' => $avis->getPseudo(),
             'avis' => $avis->getAvis(),
             'rating' => $avis->getRating(),
             'validated_by' => $avis->getValidatedBy(),
+            'is_validated' => $avis->isValidated() ? 1 : 0,
         ]);
+
+        // Récupère l'id généré par l'auto-incrémentation après l'insertion
         $avis->setId($this->pdo->lastInsertId());
     }
 
@@ -56,7 +58,7 @@ class AvisRepository
     {
         $stmt = $this->pdo->prepare('
             UPDATE avis 
-            SET pseudo = :pseudo, avis = :avis, rating = :rating, validated_by = :validated_by 
+            SET pseudo = :pseudo, avis = :avis, rating = :rating, validated_by = :validated_by, is_validated = :is_validated 
             WHERE id = :id
         ');
         $stmt->execute([
@@ -65,6 +67,7 @@ class AvisRepository
             'avis' => $avis->getAvis(),
             'rating' => $avis->getRating(),
             'validated_by' => $avis->getValidatedBy(),
+            'is_validated' => $avis->isValidated() ? 1 : 0,
         ]);
     }
 
@@ -72,5 +75,18 @@ class AvisRepository
     {
         $stmt = $this->pdo->prepare('DELETE FROM avis WHERE id = :id');
         $stmt->execute(['id' => $id]);
+    }
+
+    public function validateAvis(string $id, string $validatedBy): void
+    {
+        $stmt = $this->pdo->prepare('
+            UPDATE avis 
+            SET is_validated = 1, validated_by = :validated_by
+            WHERE id = :id
+        ');
+        $stmt->execute([
+            'id' => $id,
+            'validated_by' => $validatedBy
+        ]);
     }
 }

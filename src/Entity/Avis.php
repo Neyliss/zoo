@@ -1,48 +1,30 @@
-<?php
-
+<?
 namespace App\Entity;
 
 use Symfony\Component\Serializer\Annotation\Groups;
 
 class Avis
 {
-    /**
-     * @var string
-     * @Groups({"avis:read", "avis:write"})
-     */
     private $id;
-
-    /**
-     * @var string
-     * @Groups({"avis:read", "avis:write"})
-     */
     private $pseudo;
-
-    /**
-     * @var string
-     * @Groups({"avis:read", "avis:write"})
-     */
     private $avis;
-
-    /**
-     * @var int
-     * @Groups({"avis:read", "avis:write"})
-     */
     private $rating;
-
+    private $validatedBy;
+    
     /**
-     * @var string|null
+     * @var bool
      * @Groups({"avis:read", "avis:write"})
      */
-    private $validatedBy;
+    private $isValidated;
 
-    public function __construct($id, $pseudo, $avis, $rating, $validatedBy = null)
+    public function __construct($id, $pseudo, $avis, $rating, $validatedBy = null, $isValidated = false)
     {
         $this->id = $id;
         $this->pseudo = $pseudo;
         $this->avis = $avis;
         $this->rating = $rating;
         $this->validatedBy = $validatedBy;
+        $this->isValidated = $isValidated;
     }
 
     // Getters and setters
@@ -95,5 +77,15 @@ class Avis
     public function setValidatedBy($validatedBy)
     {
         $this->validatedBy = $validatedBy;
+    }
+
+    public function isValidated(): bool
+    {
+        return $this->isValidated;
+    }
+
+    public function setValidated(bool $isValidated)
+    {
+        $this->isValidated = $isValidated;
     }
 }

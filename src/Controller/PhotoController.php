@@ -13,17 +13,18 @@ use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
 class PhotoController extends AbstractController
 {
-    private const UPLOAD_DIRECTORY = 'public/uploads/photos'; // Répertoire pour stocker les photos
+    private const UPLOAD_DIRECTORY = 'public/uploads/photos'; 
 
-    /**
-     * @Route("/api/photos", name="api_photos", methods={"POST", "PUT"})
-     */
+    #[Route('/api/photos', name: 'api_add_photo', methods: ['POST'])]
     public function savePhoto(Request $request): JsonResponse
     {
         $filesystem = new Filesystem();
         $files = $request->files;
-        $title = $request->request->get('Titre');
-        $image = $files->get('Image');
+        $title = $request->request->get('title');
+        $image = $files->get('image');
+        $habitatId = $request->request->get('habitatId');
+        $animalId = $request->request->get('animalId');
+        $nosOffres = $request->request->get('offers'); // IDs des offres
 
         if (!$title) {
             return new JsonResponse(['message' => 'Le titre est requis'], Response::HTTP_BAD_REQUEST);
@@ -46,24 +47,20 @@ class PhotoController extends AbstractController
 
             $imageUrl = '/uploads/photos/' . $newFilename;
         } else {
-            $imageUrl = ''; // Cas où aucune image n'est fournie
+            $imageUrl = ''; 
         }
 
-        // Stockage des données (titre et URL de l'image) - Simuler la sauvegarde
-        // Vous pouvez sauvegarder les données dans une base de données ou un fichier JSON
-        // Exemple : ['title' => $title, 'image' => $imageUrl]
+        // Simuler la sauvegarde dans la base de données avec les relations
+        // Associer la photo à l'habitat, à l'animal et aux offres
 
         return new JsonResponse(['message' => 'Photo sauvegardée', 'imageUrl' => $imageUrl], Response::HTTP_OK);
     }
 
-    /**
-     * @Route("/api/photos", name="api_delete_photo", methods={"DELETE"})
-     */
-    public function deletePhoto(Request $request): JsonResponse
+    #[Route('/api/photos/{id}', name: 'api_delete_photo', methods: ['DELETE'])]
+    public function deletePhoto(int $id): JsonResponse
     {
-        $title = $request->request->get('title');
-        // Récupérer l'URL de l'image à partir du titre, ceci est un exemple simplifié
-        $imagePath = self::UPLOAD_DIRECTORY . '/' . $title;
+        // Simuler la récupération et suppression de la photo par son ID
+        $imagePath = self::UPLOAD_DIRECTORY . '/photo' . $id; // Exemple d'URL
 
         $filesystem = new Filesystem();
         if ($filesystem->exists($imagePath)) {

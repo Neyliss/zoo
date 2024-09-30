@@ -6,16 +6,16 @@ use App\Entity\Contact;
 use App\Repository\ContactRepository;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Routing\Annotation\Route;
 
-class ContactController
+class ContactController extends AbstractController
 {
     private $mailer;
     private $validator;
@@ -34,9 +34,7 @@ class ContactController
         $this->contactRepository = $contactRepository;
     }
 
-    /**
-     * @Route("/api/contact", name="contact", methods={"POST"})
-     */
+    #[Route('/api/contact', name: 'contact_create', methods: ['POST'])]
     public function contact(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -76,7 +74,6 @@ class ContactController
 
             return new JsonResponse(['message' => 'Email sent successfully'], Response::HTTP_OK);
         } catch (\Exception $e) {
-            // Gérer les erreurs, notamment pour l'envoi d'email ou la sauvegarde
             return new JsonResponse(['error' => 'An error occurred: ' . $e->getMessage()], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }

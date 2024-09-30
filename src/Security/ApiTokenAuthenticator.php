@@ -18,12 +18,10 @@ use Symfony\Component\Security\Core\User\UserProviderInterface;
 class ApiTokenAuthenticator extends AbstractAuthenticator
 {
     private UserRepository $repository;
-    private UserProviderInterface $userProvider;
 
-    public function __construct(UserRepository $repository, UserProviderInterface $userProvider)
+    public function __construct(UserRepository $repository)
     {
         $this->repository = $repository;
-        $this->userProvider = $userProvider;
     }
 
     public function supports(Request $request): ?bool
@@ -31,7 +29,7 @@ class ApiTokenAuthenticator extends AbstractAuthenticator
         return $request->headers->has('X-AUTH-TOKEN');
     }
 
-    public function authenticate(Request $request): Passport // Assurez-vous que cela correspond à la signature de la classe parente
+    public function authenticate(Request $request): Passport
     {
         $apiToken = $request->headers->get('X-AUTH-TOKEN');
 
