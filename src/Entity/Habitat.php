@@ -1,21 +1,27 @@
 <?php
+
 namespace App\Entity;
 
 class Habitat
 {
-    private $id;
-    private $name;
-    private $description;
-    private $imagePath;
+    private ?string $id = null;
+    private string $name;
+    private ?string $description = null;
+    private ?string $imagePath = null;
+    private ?Photo $photo = null; // Propriété photo
 
-    public function __construct($id = null, $name = null, $description = null, $imagePath = null)
+    // Getter et setter pour photo
+    public function setPhoto(?Photo $photo): void
     {
-        $this->id = $id;
-        $this->name = $name;
-        $this->description = $description;
-        $this->imagePath = $imagePath;
+        $this->photo = $photo;
     }
 
+    public function getPhoto(): ?Photo
+    {
+        return $this->photo;
+    }
+
+    // Getters et setters pour les autres propriétés
     public function getId(): ?string
     {
         return $this->id;

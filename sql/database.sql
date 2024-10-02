@@ -43,7 +43,7 @@ CREATE TABLE animal (
 );
 
 -- Table des formulaires vétérinaires
-CREATE TABLE vet_forms (
+CREATE TABLE vet_form (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     etat_animal VARCHAR(255) NOT NULL,
     nourriture_proposee VARCHAR(255) NOT NULL,
@@ -101,7 +101,7 @@ CREATE TABLE contact (
 );
 
 -- Table des services
-CREATE TABLE nosOffres (
+CREATE TABLE offre (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     description TEXT NOT NULL,

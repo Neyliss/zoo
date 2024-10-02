@@ -14,6 +14,12 @@ class HabitatRepository
         $this->pdo = $pdo;
     }
 
+    // Alias pour findById
+    public function find(string $id): ?Habitat
+    {
+        return $this->findById($id);
+    }
+
     public function findAll(): array
     {
         $stmt = $this->pdo->query('SELECT * FROM habitat');
@@ -42,7 +48,14 @@ class HabitatRepository
 
     public function save(Habitat $habitat): void
     {
-        $stmt = $this->pdo->prepare('INSERT INTO habitat (id, name, description, image_path) VALUES (:id, :name, :description, :image_path)');
+        $existingHabitat = $this->findById($habitat->getId());
+        
+        if ($existingHabitat) {
+            $stmt = $this->pdo->prepare('UPDATE habitat SET name = :name, description = :description, image_path = :image_path WHERE id = :id');
+        } else {
+            $stmt = $this->pdo->prepare('INSERT INTO habitat (id, name, description, image_path) VALUES (:id, :name, :description, :image_path)');
+        }
+
         $stmt->execute([
             'id' => $habitat->getId(),
             'name' => $habitat->getName(),

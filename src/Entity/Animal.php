@@ -4,19 +4,29 @@ namespace App\Entity;
 
 class Animal
 {
-    private $id;
-    private $name;
-    private $race;
-    private $habitatId;
-    private $imagePath; // Ajout de la propriété image
+    private string $id;
+    private string $name;
+    private string $race;
+    private string $habitatId;
+    private ?string $imagePath = null; // Ajout de la propriété pour l'image principale
+    private array $photos = []; // Tableau des photos supplémentaires
 
-    public function __construct(string $id, string $name, string $race, string $habitatId, ?string $imagePath = null)
+    public function __construct(string $id, string $name, string $race, string $habitatId)
     {
         $this->id = $id;
         $this->name = $name;
         $this->race = $race;
         $this->habitatId = $habitatId;
-        $this->imagePath = $imagePath; // Initialisation de l'image
+    }
+
+    public function addPhoto(Photo $photo): void
+    {
+        $this->photos[] = $photo;
+    }
+
+    public function getPhotos(): array
+    {
+        return $this->photos;
     }
 
     public function getId(): string
@@ -39,9 +49,14 @@ class Animal
         return $this->habitatId;
     }
 
-    public function getImagePath(): ?string // Ajout du getter pour l'image
+    public function getImagePath(): ?string // Getter pour l'image principale
     {
         return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): void // Setter pour l'image principale
+    {
+        $this->imagePath = $imagePath;
     }
 
     public function setId(string $id): void
@@ -62,10 +77,5 @@ class Animal
     public function setHabitatId(string $habitatId): void
     {
         $this->habitatId = $habitatId;
-    }
-
-    public function setImagePath(?string $imagePath): void // Ajout du setter pour l'image
-    {
-        $this->imagePath = $imagePath;
     }
 }

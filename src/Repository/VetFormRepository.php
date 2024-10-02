@@ -97,4 +97,24 @@ class VetFormRepository
         $stmt = $this->pdo->prepare('DELETE FROM vet_forms WHERE id = :id');
         $stmt->execute(['id' => $id]);
     }
+
+    // Nouvelle méthode pour que l'admin récupère tous les formulaires vétérinaires
+    public function findAllForAdmin(): array
+    {
+        $stmt = $this->pdo->query('SELECT * FROM vet_forms');
+        $vetForms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        return array_map(function ($vetForm) {
+            return new VetForm(
+                $vetForm['id'],
+                $vetForm['animal_id'],
+                $vetForm['etat_animal'],
+                $vetForm['nourriture_proposee'],
+                $vetForm['grammage_nourriture'],
+                $vetForm['date_passage'],
+                $vetForm['detail_etat_animal'],
+                $vetForm['created_by']
+            );
+        }, $vetForms);
+    }
 }

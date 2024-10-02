@@ -59,7 +59,7 @@ class AvisController extends AbstractController
     }
 
     #[Route('/api/review/{id}/validate', name: 'review_validate', methods: ['PUT'])]
-    #[Security("is_granted('ROLE_EMPLOYE')")]
+    //#[Security("is_granted('ROLE_EMPLOYE')")]
     public function validateReview(string $id, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);

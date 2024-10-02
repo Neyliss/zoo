@@ -82,17 +82,17 @@ class AnimalRepository
                 'name' => $animal->getName(),
                 'race' => $animal->getRace(),
                 'habitat_id' => $animal->getHabitatId(),
-                'image_path' => $animal->getImagePath(), // Gestion de l'image
+                'image_path' => $animal->getImagePath() // Gestion de l'image principale
             ]);
         } else {
-            // Sinon, nous insérons un nouvel enregistrement
+            // Si l'ID n'est pas défini, nous insérons un nouvel enregistrement
             $stmt = $this->pdo->prepare('INSERT INTO animal (id, name, race, habitat_id, image_path) VALUES (:id, :name, :race, :habitat_id, :image_path)');
             $stmt->execute([
                 'id' => $animal->getId(),
                 'name' => $animal->getName(),
                 'race' => $animal->getRace(),
                 'habitat_id' => $animal->getHabitatId(),
-                'image_path' => $animal->getImagePath(), // Gestion de l'image
+                'image_path' => $animal->getImagePath() // Gestion de l'image principale
             ]);
         }
     }

@@ -2,14 +2,12 @@
 
 namespace App\Entity;
 
-class NosOffres
+class Offer
 {
     private string $id;
     private string $name;
     private string $description;
     private string $image;
-
-    // Getters and setters
 
     public function getId(): string
     {
