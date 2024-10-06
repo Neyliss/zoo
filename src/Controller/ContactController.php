@@ -15,6 +15,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[Route('/api/contact')] // Préfixe pour toutes les routes de la classe
 class ContactController extends AbstractController
 {
     private $mailer;
@@ -34,7 +35,7 @@ class ContactController extends AbstractController
         $this->contactRepository = $contactRepository;
     }
 
-    #[Route('/api/contact', name: 'contact_create', methods: ['POST'])]
+    #[Route('create', name: 'contact_create', methods: ['POST'])] // Route POST pour créer un contact
     public function contact(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -66,7 +67,7 @@ class ContactController extends AbstractController
             // Envoyer l'email
             $email = (new Email())
                 ->from($contact->getEmail())
-                ->to('contact@yourdomain.com') // Remplacez par l'email de destination
+                ->to('fenix425@live.com') // Remplacez par l'email de destination
                 ->subject($contact->getTitre())
                 ->text($contact->getDescription());
 

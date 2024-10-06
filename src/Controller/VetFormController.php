@@ -10,24 +10,25 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+#[Route('/api/vet-form')] // Préfixe pour toutes les routes relatives aux VetForm
 class VetFormController extends AbstractController
 {
-    private $vetFormRepository;
+    private VetFormRepository $vetFormRepository;
 
     public function __construct(VetFormRepository $vetFormRepository)
     {
         $this->vetFormRepository = $vetFormRepository;
     }
 
-    #[Route('/api/vet-form', methods: ['GET'])]
+    #[Route('', methods: ['GET'])] // Route pour récupérer tous les formulaires vétérinaires
     public function getAllVetForms(): JsonResponse
     {
         $vetForms = $this->vetFormRepository->findAll();
         return new JsonResponse($vetForms);
     }
 
-    #[Route('/api/vet-form/{id}', methods: ['GET'])]
-    public function getVetForms($id): JsonResponse
+    #[Route('/{id}', methods: ['GET'])] // Route pour récupérer un formulaire vétérinaire spécifique
+    public function getVetForms(string $id): JsonResponse
     {
         $vetForm = $this->vetFormRepository->findById($id);
 
@@ -38,7 +39,7 @@ class VetFormController extends AbstractController
         return new JsonResponse($vetForm);
     }
 
-    #[Route('/api/vet-form', methods: ['POST'])]
+    #[Route('', methods: ['POST'])] // Route pour créer un formulaire vétérinaire
     public function createVetForms(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -57,8 +58,8 @@ class VetFormController extends AbstractController
         return new JsonResponse($vetForm, Response::HTTP_CREATED);
     }
 
-    #[Route('/api/vet-form/{id}', methods: ['PUT'])]
-    public function updateVetForms(Request $request, $id): JsonResponse
+    #[Route('/{id}', methods: ['PUT'])] // Route pour mettre à jour un formulaire vétérinaire
+    public function updateVetForms(Request $request, string $id): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $vetForm = $this->vetFormRepository->findById($id);
@@ -79,8 +80,8 @@ class VetFormController extends AbstractController
         return new JsonResponse($vetForm);
     }
 
-    #[Route('/api/vet-form/{id}', methods: ['DELETE'])]
-    public function deleteVetForms($id): JsonResponse
+    #[Route('/{id}', methods: ['DELETE'])] // Route pour supprimer un formulaire vétérinaire
+    public function deleteVetForms(string $id): JsonResponse
     {
         $vetForm = $this->vetFormRepository->findById($id);
 
@@ -93,8 +94,7 @@ class VetFormController extends AbstractController
         return new JsonResponse(['status' => 'VetForm deleted'], Response::HTTP_NO_CONTENT);
     }
 
-    // Nouvelle route pour que l'admin récupère tous les formulaires vétérinaires
-    #[Route('/api/admin/vet-forms', methods: ['GET'])]
+    #[Route('/admin/all', methods: ['GET'])] // Route pour que l'admin récupère tous les formulaires vétérinaires
     public function getAllVetFormsForAdmin(): JsonResponse
     {
         if (!$this->isAdmin()) {

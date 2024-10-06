@@ -11,6 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use App\Repository\PhotoRepository;
 
+#[Route('/api/photos')]
 class PhotoController extends AbstractController
 {
     private const UPLOAD_DIRECTORY = 'public/uploads/photos'; 
@@ -22,14 +23,14 @@ class PhotoController extends AbstractController
         $this->photoRepository = $photoRepository;
     }
 
-    #[Route('/api/photos', name: 'api_photos_add', methods: ['POST'])]
+    #[Route('/add', name: 'api_photos_add', methods: ['POST'])]
     public function addPhoto(Request $request): JsonResponse
     {
         $files = $request->files;
         $image = $files->get('image');
         $animalId = $request->request->get('animalId');
         $habitatId = $request->request->get('habitatId'); // Optionnel
-        $offerId = $request->request->get('offerId');     // Optionnel
+        $offerId = $request->request->get('offerId');     // Optionnel ou obligatoire en capturant l'ID
     
         if (!$image) {
             return new JsonResponse(['message' => 'Image requise'], Response::HTTP_BAD_REQUEST);
@@ -65,7 +66,7 @@ class PhotoController extends AbstractController
         return new JsonResponse(['message' => 'Fichier image non valide'], Response::HTTP_BAD_REQUEST);
     }
 
-    #[Route('/api/photos/{id}', name: 'api_photos_get', methods: ['GET'])]
+    #[Route('/acces/{id}', name: 'api_photos_get', methods: ['GET'])]
     public function getPhoto(string $id): JsonResponse
     {
         $photo = $this->photoRepository->find($id);
@@ -77,7 +78,7 @@ class PhotoController extends AbstractController
         return new JsonResponse($photo, Response::HTTP_OK);
     }
 
-    #[Route('/api/photos/{id}', name: 'api_photos_update', methods: ['PUT'])]
+    #[Route('/maj/{id}', name: 'api_photos_update', methods: ['PUT'])]
     public function updatePhoto(string $id, Request $request): JsonResponse
     {
         $photo = $this->photoRepository->find($id);
@@ -110,25 +111,26 @@ class PhotoController extends AbstractController
 
             // Supprimer l'ancienne image
             $oldImageUrl = $photo->getPath();
-                if ($oldImageUrl && file_exists(self::UPLOAD_DIRECTORY . '/' . basename($oldImageUrl))) {
-                     unlink(self::UPLOAD_DIRECTORY . '/' . basename($oldImageUrl));
-                        }
+            if ($oldImageUrl && file_exists(self::UPLOAD_DIRECTORY . '/' . basename($oldImageUrl))) {
+                unlink(self::UPLOAD_DIRECTORY . '/' . basename($oldImageUrl));
+            }
 
-                    $photo->setPath('/uploads/photos/' . $newFilename);
+            $photo->setPath('/uploads/photos/' . $newFilename);
 
-                    // Récupérer l'ID et le type d'entité
-                $entityId = $photo->getAnimalId() ?? $photo->getHabitatId() ?? $photo->getOfferId();
-                $entityType = $photo->getAnimalId() ? 'animal' : ($photo->getHabitatId() ? 'habitat' : 'offer');
+            // Récupérer l'ID et le type d'entité
+            $entityId = $photo->getAnimalId() ?? $photo->getHabitatId() ?? $photo->getOfferId();
+            $entityType = $photo->getAnimalId() ? 'animal' : ($photo->getHabitatId() ? 'habitat' : 'offer');
 
-                // Appel à la méthode save avec les bons arguments
-                $this->photoRepository->save($entityId, $photo->getPath(), $entityType);
+            // Appel à la méthode save avec les bons arguments
+            $this->photoRepository->save($entityId, $photo->getPath(), $entityType);
 
-                return new JsonResponse(['message' => 'Photo mise à jour', 'photo' => $photo], Response::HTTP_OK);
+            return new JsonResponse(['message' => 'Photo mise à jour', 'photo' => $photo], Response::HTTP_OK);
+        }
 
+        return new JsonResponse(['message' => 'Fichier image non valide'], Response::HTTP_BAD_REQUEST);
     }
-}
 
-    #[Route('/api/photos/{id}', name: 'api_photos_delete', methods: ['DELETE'])]
+    #[Route('/delete/{id}', name: 'api_photos_delete', methods: ['DELETE'])]
     public function deletePhoto(string $id): JsonResponse
     {
         $photo = $this->photoRepository->find($id);

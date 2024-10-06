@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use OpenApi\Annotations as OA;
 
+#[Route('/api/review')] // Préfixe pour toutes les routes de la classe
 class AvisController extends AbstractController
 {
     private $repository;
@@ -27,7 +28,7 @@ class AvisController extends AbstractController
         $this->serializer = $serializer;
     }
 
-    #[Route('/api/review', name: 'review_create', methods: ['POST'])]
+    #[Route('/create', name: 'review_create', methods: ['POST'])] // Route POST pour créer un avis
     public function submitReview(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -58,8 +59,8 @@ class AvisController extends AbstractController
         return new JsonResponse(['message' => 'Review submitted successfully', 'id' => $avis->getId()], Response::HTTP_OK);
     }
 
-    #[Route('/api/review/{id}/validate', name: 'review_validate', methods: ['PUT'])]
-    //#[Security("is_granted('ROLE_EMPLOYE')")]
+    #[Route('/{id}/validate', name: 'review_validate', methods: ['PUT'])] // Route PUT pour valider un avis
+    //#[Security("is_granted('ROLE_EMPLOYE')")] // Utiliser cette ligne pour sécuriser avec les rôles
     public function validateReview(string $id, Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -77,7 +78,7 @@ class AvisController extends AbstractController
         return new JsonResponse(['message' => 'Review validated successfully'], Response::HTTP_OK);
     }
 
-    #[Route('/api/review/{id}', name: 'review_get', methods: ['GET'])]
+    #[Route('/{id}', name: 'review_get', methods: ['GET'])] // Route GET pour récupérer un avis par ID
     public function getReview(string $id): JsonResponse
     {
         try {
@@ -94,7 +95,7 @@ class AvisController extends AbstractController
         return new JsonResponse($data, Response::HTTP_OK, [], true);
     }
 
-    #[Route('/api/reviews', name: 'reviews_get_validated', methods: ['GET'])]
+    #[Route('/all', name: 'reviews_get_validated', methods: ['GET'])] // Route GET pour récupérer tous les avis validés
     public function getAllValidatedReviews(): JsonResponse
     {
         try {

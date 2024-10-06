@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
 
+#[Route('api/offers')] // Préfixe pour toutes les routes relatives aux offres
 class OfferController extends AbstractController
 {
     private OfferRepository $offerRepository;
@@ -19,15 +20,15 @@ class OfferController extends AbstractController
         $this->offerRepository = $offerRepository;
     }
 
-    #[Route('/offers', name: 'offer_list', methods: ['GET'])]
+    #[Route('/list', name: 'offer_list', methods: ['GET'])] // Route pour obtenir toutes les offres
     public function index(): Response
     {
         $offers = $this->offerRepository->findAll();
         return $this->json($offers);
     }
 
-    #[Route('/offers/new', name: 'offer_new', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/new', name: 'offer_new', methods: ['POST'])] // Route pour créer une nouvelle offre
+    #[IsGranted('ROLE_ADMIN')] // Autorisation uniquement pour les administrateurs
     public function create(Request $request): Response
     {
         $offer = new Offer();
@@ -40,8 +41,8 @@ class OfferController extends AbstractController
         return $this->json(['message' => 'Offer created successfully']);
     }
 
-    #[Route('/offers/edit/{id}', name: 'offer_edit', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/edit/{id}', name: 'offer_edit', methods: ['POST'])] // Route pour éditer une offre
+    #[IsGranted('ROLE_ADMIN')] // Autorisation uniquement pour les administrateurs
     public function edit(Request $request, string $id): Response
     {
         $offer = $this->offerRepository->findById($id);
@@ -61,8 +62,8 @@ class OfferController extends AbstractController
         return $this->json(['message' => 'Offer updated successfully']);
     }
 
-    #[Route('/offers/delete/{id}', name: 'offer_delete', methods: ['POST'])]
-    #[IsGranted('ROLE_ADMIN')]
+    #[Route('/delete/{id}', name: 'offer_delete', methods: ['POST'])] // Route pour supprimer une offre
+    #[IsGranted('ROLE_ADMIN')] // Autorisation uniquement pour les administrateurs
     public function delete(string $id): Response
     {
         $offer = $this->offerRepository->findById($id);

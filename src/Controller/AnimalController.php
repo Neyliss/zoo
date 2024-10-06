@@ -14,6 +14,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 
+#[Route('/api/animals')] // Préfixe ajouté pour toutes les routes de la classe
 class AnimalController extends AbstractController
 {
     private AnimalRepository $animalRepository;
@@ -26,14 +27,14 @@ class AnimalController extends AbstractController
         $this->photoRepository = $photoRepository;
     }
 
-    #[Route('/api/animals', name: 'api_get_animals', methods: ['GET'])]
+    #[Route('', name: 'api_get_animals', methods: ['GET'])] // Route pour GET sans répétition
     public function getAnimals(): JsonResponse
     {
         $animals = $this->animalRepository->findAll();
         return new JsonResponse($animals, Response::HTTP_OK);
     }
 
-    #[Route('/api/animals', name: 'api_add_animal', methods: ['POST'])]
+    #[Route('', name: 'api_add_animal', methods: ['POST'])] // Route pour POST sans répétition
     public function addAnimal(Request $request): JsonResponse
     {
         $files = $request->files;
@@ -76,7 +77,7 @@ class AnimalController extends AbstractController
         return new JsonResponse(['message' => 'Animal ajouté', 'animal' => $animal, 'images' => $imagePaths], Response::HTTP_CREATED);
     }
 
-    #[Route('/api/animals/{id}', name: 'api_delete_animal', methods: ['DELETE'])]
+    #[Route('/{id}', name: 'api_delete_animal', methods: ['DELETE'])] // Route pour DELETE avec ID
     public function deleteAnimal(string $id): JsonResponse
     {
         $animal = $this->animalRepository->findById($id);

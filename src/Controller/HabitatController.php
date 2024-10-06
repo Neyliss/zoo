@@ -11,6 +11,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
+#[Route('/api/habitats')] // Préfixe pour toutes les routes liées aux habitats
 class HabitatController extends AbstractController
 {
     private HabitatRepository $habitatRepository;
@@ -22,14 +23,14 @@ class HabitatController extends AbstractController
         $this->photoRepository = $photoRepository;
     }
 
-    #[Route('/api/habitats', name: 'api_habitats', methods: ['GET'])]
+    #[Route('/all', name: 'api_habitats', methods: ['GET'])] // Route pour obtenir tous les habitats
     public function getAllHabitats(): JsonResponse
     {
         $habitats = $this->habitatRepository->findAll();
         return $this->json($habitats);
     }
 
-    #[Route('/api/habitats/{id}', name: 'api_habitat_show', methods: ['GET'])]
+    #[Route('/{id}', name: 'api_habitat_show', methods: ['GET'])] // Route pour obtenir un habitat par ID
     public function getHabitatById(string $id): JsonResponse
     {
         $habitat = $this->habitatRepository->findById($id);
@@ -39,7 +40,7 @@ class HabitatController extends AbstractController
         return $this->json($habitat);
     }
 
-    #[Route('/api/habitats/{id}/photo', name: 'api_habitat_add_photo', methods: ['POST'])]
+    #[Route('/{id}/photo', name: 'api_habitat_add_photo', methods: ['POST'])] // Route pour ajouter une photo à un habitat
     public function addPhotoToHabitat(string $id, Request $request): JsonResponse
     {
         $habitat = $this->habitatRepository->findById($id);
