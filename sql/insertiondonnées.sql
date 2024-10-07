@@ -51,3 +51,10 @@ CREATE TABLE offer (
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
+
+-- Insertion des rôles (admin, vétérinaire, employé)
+INSERT INTO roles (name) VALUES ('admin'), ('veterinaire'), ('employe');
+
+-- Insertion de l'utilisateur administrateur unique
+INSERT INTO users (email, password, role_id)
+VALUES ('admin@mail.com', 'Adminlog456789', (SELECT id FROM roles WHERE name = 'admin'));

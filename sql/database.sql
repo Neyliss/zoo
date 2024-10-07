@@ -18,11 +18,10 @@ CREATE TABLE users (
     FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL
 );
 
-
+-- Contrainte pour n'avoir qu'un seul administrateur
 ALTER TABLE users ADD CONSTRAINT one_admin CHECK (
-  (SELECT COUNT(*) FROM users WHERE role_id = 1) <= 1
+  (SELECT COUNT(*) FROM users WHERE role_id = (SELECT id FROM roles WHERE name = 'admin')) <= 1
 );
-
 
 -- Table des habitats (un habitat peut avoir plusieurs animaux)
 CREATE TABLE habitat (
@@ -42,8 +41,8 @@ CREATE TABLE animal (
     FOREIGN KEY (habitat_id) REFERENCES habitat(id) ON DELETE CASCADE -- Relation entre animal et habitat
 );
 
--- Table des formulaires vétérinaires
-CREATE TABLE vet_form (
+-- Table des formulaires vétérinaires (Vet Forms)
+CREATE TABLE vet_forms (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     etat_animal VARCHAR(255) NOT NULL,
     nourriture_proposee VARCHAR(255) NOT NULL,
@@ -73,7 +72,7 @@ CREATE TABLE admin_vet_form (
     FOREIGN KEY (vet_form_id) REFERENCES vet_forms(id) ON DELETE CASCADE
 );
 
--- Table des avis (modification existante)
+-- Table des avis
 CREATE TABLE avis (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     pseudo VARCHAR(255) NOT NULL,
@@ -100,45 +99,20 @@ CREATE TABLE contact (
     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
---- Table pour les photos avec UUID
+-- Table pour les photos avec UUID
 CREATE TABLE photo (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     titre VARCHAR(255) NOT NULL,
-    image_url VARCHAR(255) NOT NULL
-);
-
--- Relation OneToOne entre photo et habitat avec UUID
-ALTER TABLE habitat
-ADD COLUMN photo_id UUID UNIQUE,
-ADD CONSTRAINT fk_habitat_photo FOREIGN KEY (photo_id) REFERENCES photo(id);
-
--- Relation OneToMany entre animal et photo avec UUID
-ALTER TABLE photo
-ADD COLUMN animal_id UUID,
-ADD CONSTRAINT fk_photo_animal FOREIGN KEY (animal_id) REFERENCES animal(id);
-
--- Table de relation ManyToMany entre photo et offer avec UUID
-CREATE TABLE offer_photo (
-    offer_id UUID,
-    photo_id UUID,
-    PRIMARY KEY (offer_id, photo_id),
-    FOREIGN KEY (offer_id) REFERENCES offer(id),
-    FOREIGN KEY (photo_id) REFERENCES photo(id)
-);
-
-CREATE TABLE photo (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    path VARCHAR(255) NOT NULL,
+    image_url VARCHAR(255) NOT NULL,
     animal_id UUID NULL,
     habitat_id UUID NULL,
     offer_id UUID NULL,
-    CONSTRAINT fk_animal FOREIGN KEY (animal_id) REFERENCES animal(id) ON DELETE SET NULL,
-    CONSTRAINT fk_habitat FOREIGN KEY (habitat_id) REFERENCES habitat(id) ON DELETE SET NULL,
-    CONSTRAINT fk_offer FOREIGN KEY (offer_id) REFERENCES offer(id) ON DELETE SET NULL
+    FOREIGN KEY (animal_id) REFERENCES animal(id) ON DELETE SET NULL,
+    FOREIGN KEY (habitat_id) REFERENCES habitat(id) ON DELETE SET NULL,
+    FOREIGN KEY (offer_id) REFERENCES offer(id) ON DELETE SET NULL
 );
 
-
--- Table des services
+-- Table des offres/services
 CREATE TABLE offer (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
@@ -149,18 +123,18 @@ CREATE TABLE offer (
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
 );
 
+-- Table pivot pour la relation plusieurs-à-plusieurs entre photos et offres
+CREATE TABLE offer_photo (
+    offer_id UUID,
+    photo_id UUID,
+    PRIMARY KEY (offer_id, photo_id),
+    FOREIGN KEY (offer_id) REFERENCES offer(id),
+    FOREIGN KEY (photo_id) REFERENCES photo(id)
+);
 
-
-
-
-
-
-
-
-
--- Insertion des rôles (admin, vétérinaire, employé)
-INSERT INTO roles (name) VALUES ('admin'), ('veterinaire'), ('employe');
-
--- Insertion de l'utilisateur administrateur unique
-INSERT INTO users (email, password, role_id)
-VALUES ('admin@mail.com', 'Adminlog456789', (SELECT id FROM roles WHERE name = 'admin'));
+-- Table des horaires (Schedules)
+CREATE TABLE schedules (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    day VARCHAR(255) NOT NULL,
+    hours VARCHAR(255) NOT NULL
+);
