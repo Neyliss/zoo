@@ -20,7 +20,7 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
         $this->password = $password;
         $this->roles = $roles;
         // Si aucun token n'est fourni, on en génère un automatiquement
-        $this->apiToken = $token ?? bin2hex(random_bytes(20));
+        $this->apiToken = $apitoken ?? bin2hex(random_bytes(20));
     }
 
     // Getter pour l'ID

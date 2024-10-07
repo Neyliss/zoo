@@ -28,13 +28,26 @@ CREATE TABLE offer_photo (
     FOREIGN KEY (photo_id) REFERENCES photo(id)
 );
 
-CREATE TABLE photos (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+CREATE TABLE photo (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     path VARCHAR(255) NOT NULL,
-    animal_id UUID DEFAULT NULL,
-    habitat_id UUID DEFAULT NULL,
-    offer_id UUID DEFAULT NULL,
-    CONSTRAINT fk_animal FOREIGN KEY (animal_id) REFERENCES animals(id) ON DELETE CASCADE,
-    CONSTRAINT fk_habitat FOREIGN KEY (habitat_id) REFERENCES habitats(id) ON DELETE CASCADE,
-    CONSTRAINT fk_offer FOREIGN KEY (offer_id) REFERENCES offers(id) ON DELETE CASCADE
+    animal_id UUID NULL,
+    habitat_id UUID NULL,
+    offer_id UUID NULL,
+    CONSTRAINT fk_animal FOREIGN KEY (animal_id) REFERENCES animal(id) ON DELETE SET NULL,
+    CONSTRAINT fk_habitat FOREIGN KEY (habitat_id) REFERENCES habitat(id) ON DELETE SET NULL,
+    CONSTRAINT fk_offer FOREIGN KEY (offer_id) REFERENCES offer(id) ON DELETE SET NULL
 );
+
+
+-- Table des services
+CREATE TABLE offer (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    name VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    image VARCHAR(255) NOT NULL,
+    created_by UUID, -- Admin ou employé qui crée/modifie/supprime un service
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+

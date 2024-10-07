@@ -23,27 +23,33 @@ class SecurityController extends AbstractController
     }
 
     #[Route('/registration', name: 'registration', methods: 'POST')]
-    public function register(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse
-    {
-        $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
-        $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
-        $user->setCreatedAt(new \DateTimeImmutable());
+        public function register(Request $request, UserPasswordHasherInterface $passwordHasher): JsonResponse{
+            $user = $this->serializer->deserialize($request->getContent(), User::class, 'json');
+    
+            // Assurez-vous que le mot de passe est bien haché
+            $user->setPassword($passwordHasher->hashPassword($user, $user->getPassword()));
+    
+            // Assurez-vous que l'API token est bien généré si manquant
+            if ($user->getApiToken() === null) {
+            $user->regenerateApiToken();
+        }
 
-        $this->manager->persist($user);
-        $this->manager->flush();
-        return new JsonResponse(
-            ['user'  => $user->getUserIdentifier(), 'apiToken' => $user->getApiToken(), 'roles' => $user->getRoles()],
-            Response::HTTP_CREATED
+            $this->manager->persist($user);
+            $this->manager->flush();
+
+            return new JsonResponse(
+                ['user' => $user->getUserIdentifier(), 'apiToken' => $user->getApiToken(), 'roles' => $user->getRoles()],
+                Response::HTTP_CREATED
         );
     }
 
 
 
 
-#[Route('/login', name: 'login', methods: 'POST')]
 
-    public function login(#[CurrentUser] ?User $user): JsonResponse
-    {
+    #[Route('/login', name: 'login', methods: 'POST')]
+
+        public function login(#[CurrentUser] ?User $user): JsonResponse{
         if (null === $user) {
             return new JsonResponse(['message' => 'Missing credentials'], Response::HTTP_UNAUTHORIZED);
         }

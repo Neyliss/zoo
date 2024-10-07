@@ -27,7 +27,7 @@ class UserRepository
                     $user['email'],
                     $user['password'],
                     $user['role_id'],
-                    $user['token']
+                    $user['apitoken']
                 );
             }, $users);
         } catch (PDOException $e) {
