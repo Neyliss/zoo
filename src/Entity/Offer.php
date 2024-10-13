@@ -4,14 +4,21 @@ namespace App\Entity;
 
 class Offer
 {
-    private string $id;
+    private ?string $id = null;
     private string $name;
     private string $description;
     private string $image;
 
-    public function getId(): string
+    // Getters et setters
+    public function getId(): ?string
     {
         return $this->id;
+    }
+
+    public function setId(string $id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 
     public function getName(): string

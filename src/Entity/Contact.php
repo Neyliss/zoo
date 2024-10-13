@@ -4,12 +4,12 @@ namespace App\Entity;
 
 class Contact
 {
-    private ?int $id;
+    private ?string $id;
     private string $titre;
     private string $email;
     private string $description;
 
-    public function __construct(?int $id, string $titre, string $email, string $description)
+    public function __construct(?string $id, string $titre, string $email, string $description)
     {
         $this->id = $id;
         $this->titre = $titre;
@@ -18,12 +18,12 @@ class Contact
     }
 
     // Getters and setters
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
 
-    public function setId(int $id): void
+    public function setId(string $id): void
     {
         $this->id = $id;
     }
@@ -55,6 +55,6 @@ class Contact
 
     public function setDescription(string $description): void
     {
-        $this->description = $description; 
+        $this->description = $description;
     }
 }

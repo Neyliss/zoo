@@ -74,27 +74,14 @@ class AnimalRepository
 
     public function save(Animal $animal): void
     {
-        if ($animal->getId()) {
-            // Si l'ID est défini, nous mettons à jour l'enregistrement existant
-            $stmt = $this->pdo->prepare('UPDATE animal SET name = :name, race = :race, habitat_id = :habitat_id, image_path = :image_path WHERE id = :id');
-            $stmt->execute([
-                'id' => $animal->getId(),
-                'name' => $animal->getName(),
-                'race' => $animal->getRace(),
-                'habitat_id' => $animal->getHabitatId(),
-                'image_path' => $animal->getImagePath() // Gestion de l'image principale
-            ]);
-        } else {
-            // Si l'ID n'est pas défini, nous insérons un nouvel enregistrement
-            $stmt = $this->pdo->prepare('INSERT INTO animal (id, name, race, habitat_id, image_path) VALUES (:id, :name, :race, :habitat_id, :image_path)');
-            $stmt->execute([
-                'id' => $animal->getId(),
-                'name' => $animal->getName(),
-                'race' => $animal->getRace(),
-                'habitat_id' => $animal->getHabitatId(),
-                'image_path' => $animal->getImagePath() // Gestion de l'image principale
-            ]);
-        }
+        $stmt = $this->pdo->prepare('INSERT INTO animal (id, name, race, habitat_id, image_path) VALUES (:id, :name, :race, :habitat_id, :image_path)');
+        $stmt->execute([
+            'id' => $animal->getId(),
+            'name' => $animal->getName(),
+            'race' => $animal->getRace(),
+            'habitat_id' => $animal->getHabitatId(),
+            'image_path' => $animal->getImagePath() // Gestion de l'image principale
+        ]);
     }
 
     public function delete(string $id): void

@@ -8,8 +8,9 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use OpenApi\Attributes as OA;
 
-#[Route('/api/schedules')]  // Préfixe ajouté
+#[Route('/api/schedules')]
 class ScheduleController extends AbstractController
 {
     private ScheduleRepository $scheduleRepository;
@@ -19,7 +20,28 @@ class ScheduleController extends AbstractController
         $this->scheduleRepository = $scheduleRepository;
     }
 
-    #[Route('/list', name: 'get_schedules', methods: ['GET'])]  // Route principale pour lister les horaires
+    #[OA\Get(
+        path: '/api/schedules/list',
+        summary: 'Récupérer la liste des horaires',
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Liste des horaires',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'id', type: 'string', example: 'uuid'),
+                            new OA\Property(property: 'day', type: 'string', example: 'Lundi'),
+                            new OA\Property(property: 'hours', type: 'string', example: '09:00-17:00')
+                        ]
+                    )
+                )
+            )
+        ]
+    )]
+    #[Route('/list', name: 'get_schedules', methods: ['GET'])]
     public function getSchedules(): JsonResponse
     {
         $schedules = $this->scheduleRepository->findAll();
@@ -32,7 +54,41 @@ class ScheduleController extends AbstractController
         return new JsonResponse($data);
     }
 
-    #[Route('/create', name: 'create_schedule', methods: ['POST'])]  // Route pour créer un nouvel horaire
+    #[OA\Post(
+        path: '/api/schedules/create',
+        summary: 'Créer un nouvel horaire',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(property: 'day', type: 'string', example: 'Lundi'),
+                    new OA\Property(property: 'hours', type: 'string', example: '09:00-17:00')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Horaire ajouté avec succès',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Horaire ajouté avec succès.')
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 400,
+                description: 'Données invalides',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Données invalides.')
+                    ]
+                )
+            )
+        ]
+    )]
+    #[Route('/create', name: 'create_schedule', methods: ['POST'])]
     public function createSchedule(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -46,7 +102,41 @@ class ScheduleController extends AbstractController
         return new JsonResponse(['message' => 'Données invalides.'], 400);
     }
 
-    #[Route('/maj/{id}', name: 'edit_schedule', methods: ['PUT'])]  // Route pour modifier un horaire existant
+    #[OA\Put(
+        path: '/api/schedules/maj/{id}',
+        summary: 'Modifier un horaire existant',
+        requestBody: new OA\RequestBody(
+            required: true,
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(property: 'day', type: 'string', example: 'Lundi'),
+                    new OA\Property(property: 'hours', type: 'string', example: '10:00-18:00')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Horaire modifié avec succès',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Horaire modifié avec succès.')
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Horaire non trouvé',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Horaire non trouvé.')
+                    ]
+                )
+            )
+        ]
+    )]
+    #[Route('/maj/{id}', name: 'edit_schedule', methods: ['PUT'])]
     public function editSchedule(string $id, Request $request): JsonResponse
     {
         $schedule = $this->scheduleRepository->findById($id);
@@ -67,7 +157,31 @@ class ScheduleController extends AbstractController
         return new JsonResponse(['message' => 'Données invalides.'], 400);
     }
 
-    #[Route('/delete/{id}', name: 'delete_schedule', methods: ['DELETE'])]  // Route pour supprimer un horaire
+    #[OA\Delete(
+        path: '/api/schedules/delete/{id}',
+        summary: 'Supprimer un horaire',
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Horaire supprimé avec succès',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Horaire supprimé avec succès.')
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Horaire non trouvé',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(property: 'message', type: 'string', example: 'Horaire non trouvé.')
+                    ]
+                )
+            )
+        ]
+    )]
+    #[Route('/delete/{id}', name: 'delete_schedule', methods: ['DELETE'])]
     public function deleteSchedule(string $id): JsonResponse
     {
         $schedule = $this->scheduleRepository->findById($id);

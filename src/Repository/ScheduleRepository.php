@@ -19,21 +19,21 @@ class ScheduleRepository
         $stmt = $this->connection->query('SELECT * FROM schedules');
         $schedules = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        return array_map(fn($schedule) => new Schedule($schedule['day'], $schedule['hours'], $schedule['id']), $schedules);
+        return array_map(fn($schedule) => new Schedule($schedule['day'], $schedule['hours'], (string)$schedule['id']), $schedules);
     }
 
-    public function findById(int $id): ?Schedule
+    public function findById(string $id): ?Schedule
     {
         $stmt = $this->connection->prepare('SELECT * FROM schedules WHERE id = :id');
         $stmt->execute(['id' => $id]);
         $schedule = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        return $schedule ? new Schedule($schedule['day'], $schedule['hours'], $schedule['id']) : null;
+        return $schedule ? new Schedule($schedule['day'], $schedule['hours'], (string)$schedule['id']) : null;
     }
 
     public function save(Schedule $schedule): void
     {
-        if ($schedule->getId() === 0) {
+        if (empty($schedule->getId())) {
             $stmt = $this->connection->prepare('INSERT INTO schedules (day, hours) VALUES (:day, :hours)');
             $stmt->execute(['day' => $schedule->getDay(), 'hours' => $schedule->getHours()]);
         } else {
@@ -46,7 +46,7 @@ class ScheduleRepository
         }
     }
 
-    public function delete(int $id): void
+    public function delete(string $id): void
     {
         $stmt = $this->connection->prepare('DELETE FROM schedules WHERE id = :id');
         $stmt->execute(['id' => $id]);

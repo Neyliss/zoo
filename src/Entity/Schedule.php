@@ -4,18 +4,18 @@ namespace App\Entity;
 
 class Schedule
 {
-    private int $id;
+    private string $id;  
     private string $day;
     private string $hours;
 
-    public function __construct(string $day, string $hours, ?int $id = null)
+    public function __construct(string $day, string $hours, ?string $id = null)
     {
-        $this->id = $id ?? 0;
+        $this->id = $id ?? '';  // On laisse l'ID vide si non fourni
         $this->day = $day;
         $this->hours = $hours;
     }
 
-    public function getId(): int
+    public function getId(): string
     {
         return $this->id;
     }

@@ -72,12 +72,13 @@ CREATE TABLE admin_vet_form (
     FOREIGN KEY (vet_form_id) REFERENCES vet_forms(id) ON DELETE CASCADE
 );
 
--- Table des avis
 CREATE TABLE avis (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     pseudo VARCHAR(255) NOT NULL,
     avis TEXT NOT NULL,
     rating INT CHECK (rating BETWEEN 1 AND 5),
+    validated_by VARCHAR(255),
+    is_validated BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -112,7 +113,7 @@ CREATE TABLE photo (
     FOREIGN KEY (offer_id) REFERENCES offer(id) ON DELETE SET NULL
 );
 
--- Table des offres/services
+-- Table des offer
 CREATE TABLE offer (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,

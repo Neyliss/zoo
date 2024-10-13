@@ -4,9 +4,10 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-            database_dsn: 'mysql:host=127.0.0.1;dbname=your_database_name'
-            database_user: 'your_database_user'
-            database_password: 'your_database_password'
+    database_dsn: 'psql:host=127.0.0.1;dbname=your_database_name'
+    database_user: 'your_database_user'
+    database_password: 'your_database_password'
+
 
 services:
     _defaults:
@@ -23,7 +24,7 @@ services:
             - '../src/Kernel.php'
             - '../src/Tests/'  # Optionnel, si vous avez un répertoire de tests
 
-        # Configuration du service PDO
+    # Configuration du service PDO
     PDO:
         class: PDO
         arguments:

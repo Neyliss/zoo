@@ -9,8 +9,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use OpenApi\Attributes as OA;
 
-#[Route('/api/vet-form')] // Préfixe pour toutes les routes relatives aux VetForm
+
+#[Route('/api/vet-form')]
 class VetFormController extends AbstractController
 {
     private VetFormRepository $vetFormRepository;
@@ -20,15 +22,89 @@ class VetFormController extends AbstractController
         $this->vetFormRepository = $vetFormRepository;
     }
 
-    #[Route('', methods: ['GET'])] // Route pour récupérer tous les formulaires vétérinaires
+    #[Route('/all', methods: ['GET'])]
+
+
+    #[OA\Get(
+        path: '/api/vet-form/all',
+        summary: "Récupère tous les formulaires vétérinaires",
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Liste des formulaires vétérinaires',
+                content: new OA\JsonContent(
+                    type: 'array',
+                    items: new OA\Items(
+                        type: 'object',
+                        properties: [
+                            new OA\Property(property: 'id', type: 'string', example: 'UUID'),
+                            new OA\Property(property: 'animal_id', type: 'string', example: 'UUID de l\'animal'),
+                            new OA\Property(property: 'etat_animal', type: 'string', example: 'Bon état'),
+                            new OA\Property(property: 'nourriture_proposee', type: 'string', example: 'Foin'),
+                            new OA\Property(property: 'grammage_nourriture', type: 'integer', example: 500),
+                            new OA\Property(property: 'date_passage', type: 'string', format: 'date', example: '2024-10-10'),
+                            new OA\Property(property: 'detail_etat_animal', type: 'string', example: 'Animal en bonne santé générale'),
+                            new OA\Property(property: 'created_by', type: 'string', example: 'UUID du vétérinaire')
+                        ]
+                    )
+                )
+            )
+        ]
+    )]
+    
     public function getAllVetForms(): JsonResponse
     {
         $vetForms = $this->vetFormRepository->findAll();
         return new JsonResponse($vetForms);
     }
 
-    #[Route('/{id}', methods: ['GET'])] // Route pour récupérer un formulaire vétérinaire spécifique
-    public function getVetForms(string $id): JsonResponse
+    #[Route('/{id}', methods: ['GET'])]
+    #[OA\Get(
+        path: '/api/vet-form/{id}',
+        summary: "Récupère un formulaire vétérinaire par ID",
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Identifiant du formulaire vétérinaire',
+                schema: new OA\Schema(type: 'string')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Formulaire vétérinaire trouvé',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'id', type: 'string', example: 'UUID'),
+                        new OA\Property(property: 'animal_id', type: 'string', example: 'UUID de l\'animal'),
+                        new OA\Property(property: 'etat_animal', type: 'string', example: 'Bon état'),
+                        new OA\Property(property: 'nourriture_proposee', type: 'string', example: 'Foin'),
+                        new OA\Property(property: 'grammage_nourriture', type: 'integer', example: 500),
+                        new OA\Property(property: 'date_passage', type: 'string', format: 'date', example: '2024-10-10'),
+                        new OA\Property(property: 'detail_etat_animal', type: 'string', example: 'Animal en bonne santé générale'),
+                        new OA\Property(property: 'created_by', type: 'string', example: 'UUID du vétérinaire')
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Formulaire vétérinaire non trouvé',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string', example: 'VetForm not found')
+                    ]
+                )
+            )
+        ]
+    )]
+    
+
+
+    public function getVetForm(string $id): JsonResponse
     {
         $vetForm = $this->vetFormRepository->findById($id);
 
@@ -39,8 +115,48 @@ class VetFormController extends AbstractController
         return new JsonResponse($vetForm);
     }
 
-    #[Route('', methods: ['POST'])] // Route pour créer un formulaire vétérinaire
-    public function createVetForms(Request $request): JsonResponse
+    #[Route('/new', methods: ['POST'])]
+    #[OA\Post(
+        path: '/api/vet-form/new',
+        summary: "Crée un nouveau formulaire vétérinaire",
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: "Données du formulaire vétérinaire à créer",
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(property: 'animal_id', type: 'string', example: 'UUID de l\'animal'),
+                    new OA\Property(property: 'etat_animal', type: 'string', example: 'Bon état'),
+                    new OA\Property(property: 'nourriture_proposee', type: 'string', example: 'Foin'),
+                    new OA\Property(property: 'grammage_nourriture', type: 'integer', example: 500),
+                    new OA\Property(property: 'date_passage', type: 'string', format: 'date', example: '2024-10-10'),
+                    new OA\Property(property: 'detail_etat_animal', type: 'string', example: 'Animal en bonne santé générale'),
+                    new OA\Property(property: 'created_by', type: 'string', example: 'UUID du vétérinaire')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 201,
+                description: 'Formulaire vétérinaire créé avec succès',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'id', type: 'string', example: 'UUID'),
+                        new OA\Property(property: 'animal_id', type: 'string', example: 'UUID de l\'animal'),
+                        new OA\Property(property: 'etat_animal', type: 'string', example: 'Bon état'),
+                        new OA\Property(property: 'nourriture_proposee', type: 'string', example: 'Foin'),
+                        new OA\Property(property: 'grammage_nourriture', type: 'integer', example: 500),
+                        new OA\Property(property: 'date_passage', type: 'string', format: 'date', example: '2024-10-10'),
+                        new OA\Property(property: 'detail_etat_animal', type: 'string', example: 'Animal en bonne santé générale'),
+                        new OA\Property(property: 'created_by', type: 'string', example: 'UUID du vétérinaire')
+                    ]
+                )
+            )
+        ]
+    )]
+    
+    public function createVetForm(Request $request): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $vetForm = new VetForm(
@@ -58,8 +174,69 @@ class VetFormController extends AbstractController
         return new JsonResponse($vetForm, Response::HTTP_CREATED);
     }
 
-    #[Route('/{id}', methods: ['PUT'])] // Route pour mettre à jour un formulaire vétérinaire
-    public function updateVetForms(Request $request, string $id): JsonResponse
+    #[Route('/maj/{id}', methods: ['PUT'])]
+    #[OA\Put(
+        path: '/api/vet-form/maj/{id}',
+        summary: "Met à jour un formulaire vétérinaire existant",
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Identifiant du formulaire vétérinaire',
+                schema: new OA\Schema(type: 'string')
+            )
+        ],
+        requestBody: new OA\RequestBody(
+            required: true,
+            description: "Données du formulaire vétérinaire à mettre à jour",
+            content: new OA\JsonContent(
+                type: 'object',
+                properties: [
+                    new OA\Property(property: 'animal_id', type: 'string', example: 'UUID de l\'animal'),
+                    new OA\Property(property: 'etat_animal', type: 'string', example: 'Bon état'),
+                    new OA\Property(property: 'nourriture_proposee', type: 'string', example: 'Foin'),
+                    new OA\Property(property: 'grammage_nourriture', type: 'integer', example: 500),
+                    new OA\Property(property: 'date_passage', type: 'string', format: 'date', example: '2024-10-10'),
+                    new OA\Property(property: 'detail_etat_animal', type: 'string', example: 'Animal en bonne santé générale'),
+                    new OA\Property(property: 'created_by', type: 'string', example: 'UUID du vétérinaire')
+                ]
+            )
+        ),
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Formulaire vétérinaire mis à jour avec succès',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'id', type: 'string', example: 'UUID'),
+                        new OA\Property(property: 'animal_id', type: 'string', example: 'UUID de l\'animal'),
+                        new OA\Property(property: 'etat_animal', type: 'string', example: 'Bon état'),
+                        new OA\Property(property: 'nourriture_proposee', type: 'string', example: 'Foin'),
+                        new OA\Property(property: 'grammage_nourriture', type: 'integer', example: 500),
+                        new OA\Property(property: 'date_passage', type: 'string', format: 'date', example: '2024-10-10'),
+                        new OA\Property(property: 'detail_etat_animal', type: 'string', example: 'Animal en bonne santé générale'),
+                        new OA\Property(property: 'created_by', type: 'string', example: 'UUID du vétérinaire')
+                    ]
+                )
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Formulaire vétérinaire non trouvé',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string', example: 'VetForm not found')
+                    ]
+                )
+            )
+        ]
+    )]
+    
+
+
+    public function updateVetForm(Request $request, string $id): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $vetForm = $this->vetFormRepository->findById($id);
@@ -80,8 +257,39 @@ class VetFormController extends AbstractController
         return new JsonResponse($vetForm);
     }
 
-    #[Route('/{id}', methods: ['DELETE'])] // Route pour supprimer un formulaire vétérinaire
-    public function deleteVetForms(string $id): JsonResponse
+    #[Route('/delete/{id}', methods: ['DELETE'])]
+    #[OA\Delete(
+        path: '/api/vet-form/delete/{id}',
+        summary: "Supprime un formulaire vétérinaire par ID",
+        parameters: [
+            new OA\Parameter(
+                name: 'id',
+                in: 'path',
+                required: true,
+                description: 'Identifiant du formulaire vétérinaire',
+                schema: new OA\Schema(type: 'string')
+            )
+        ],
+        responses: [
+            new OA\Response(
+                response: 200,
+                description: 'Formulaire vétérinaire supprimé avec succès'
+            ),
+            new OA\Response(
+                response: 404,
+                description: 'Formulaire vétérinaire non trouvé',
+                content: new OA\JsonContent(
+                    type: 'object',
+                    properties: [
+                        new OA\Property(property: 'error', type: 'string', example: 'VetForm not found')
+                    ]
+                )
+            )
+        ]
+    )]    
+
+
+    public function deleteVetForm(string $id): JsonResponse
     {
         $vetForm = $this->vetFormRepository->findById($id);
 
@@ -92,21 +300,5 @@ class VetFormController extends AbstractController
         $this->vetFormRepository->delete($id);
 
         return new JsonResponse(['status' => 'VetForm deleted'], Response::HTTP_NO_CONTENT);
-    }
-
-    #[Route('/admin/all', methods: ['GET'])] // Route pour que l'admin récupère tous les formulaires vétérinaires
-    public function getAllVetFormsForAdmin(): JsonResponse
-    {
-        if (!$this->isAdmin()) {
-            return new JsonResponse(['error' => 'Access denied'], Response::HTTP_FORBIDDEN);
-        }
-
-        $vetForms = $this->vetFormRepository->findAllForAdmin();
-        return new JsonResponse($vetForms);
-    }
-
-    private function isAdmin(): bool
-    {
-        return $this->isGranted('ROLE_ADMIN');
     }
 }

@@ -29,7 +29,6 @@ class Photo
         return $this->path;
     }
 
-    // Ajout de la méthode setPath
     public function setPath(string $path): void
     {
         $this->path = $path;

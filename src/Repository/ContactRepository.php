@@ -23,8 +23,8 @@ class ContactRepository
     public function save(Contact $contact): void
     {
         $query = '
-            INSERT INTO contacts (titre, email, description) 
-            VALUES (:titre, :email, :description)
+            INSERT INTO contact (id, titre, email, description) 
+            VALUES (uuid_generate_v4(), :titre, :email, :description)
         ';
         
         try {
@@ -36,13 +36,15 @@ class ContactRepository
                 'description' => $contact->getDescription(),
             ]);
 
-            // Récupérer l'ID auto-généré
-            $contact->setId((int) $this->pdo->lastInsertId());
-            
+            // Récupérer l'ID auto-généré et le définir dans l'entité
+            $stmt = $this->pdo->query('SELECT id FROM contact WHERE rowid = last_insert_rowid()');
+            $id = $stmt->fetchColumn();
+            $contact->setId($id);
+
             $this->pdo->commit();
         } catch (\Exception $e) {
             $this->pdo->rollBack();
-            throw new \Exception('Failed to save contact: ' . $e->getMessage());
+            throw new \Exception('Échec de l\'enregistrement du contact : ' . $e->getMessage());
         }
     }
 }
